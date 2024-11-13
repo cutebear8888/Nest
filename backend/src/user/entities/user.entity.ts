@@ -1,4 +1,4 @@
-// Entities are for tables or for collections
+// Entities are for database tables or for collections
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()

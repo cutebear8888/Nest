@@ -1,3 +1,5 @@
+
+
 // This DTO validate the all the field of input values
 
 import { Transform } from 'class-transformer';
@@ -14,7 +16,10 @@ import {
   MinLength,
 } from 'class-validator';
 
-const passwordRegEx = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,20}$/;
+const passwordRegEx = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!.%*?&])[A-Za-z\d@$!.%*?&]{8,20}$/;
+const passwo = "cutebear777.C!";
+console.log(passwordRegEx.test(passwo));
+
 
 export class CreateUserDto {
   @IsString()
@@ -45,4 +50,9 @@ export class CreateUserDto {
   @IsOptional()//This field is optional when the user is creating a new account
   @Transform(({value}) => value || 'user') //Defalut to 'user' if not provided
   role ?: string;
+
+
+  @IsOptional()
+  @IsString()
+  currentPassword?:string;
 }

@@ -30,8 +30,12 @@ export class UserController {
 
   // PATCH http://localhost:3000/user/:id
   @Patch (':id')
-  update(@Param('id') id: number, @Body() updateUserDto: UpdateUserDto) {
-    return this.userService.update(id, updateUserDto);
+  async update(
+    @Param('id') id: number, 
+    @Body() updateUserDto: UpdateUserDto, 
+    @Body('currentPassword') currentPassword?: string
+  ) {
+    return this.userService.update(id, updateUserDto, currentPassword);
   }
 
   // DELETE http://localhost:3000/user/:id
