@@ -6,6 +6,7 @@ import { useAuth } from '../../context/AuthContext';
 import { login} from '../../services/authService';
 import { validateEmail } from '../../utils/validation';
 import Layout from '../../components/Layout';
+import Link  from 'next/link';
 
 export default function LoginPage() {
   const [loading, setLoading] = useState(false);
@@ -27,20 +28,20 @@ export default function LoginPage() {
       const response = await login(email, password);
       if(response?.success){
         setLoading(false);
-        setAuth(response.data.first_name, response.data.last_name, response.data.email, response.data.role,response.data.is_active, response.data.user_id); 
+        setAuth(response.data.first_name, response.data.last_name, response.data.email, response.data.role,true, response.data.user_id); 
         setIsAuthenticated(true);
         
 
-        if(response.data === 'superuser'){
-          router.push('/admin/');
-        } else if (response.data === 'admin'){
+        if (response.data.role === 'admin'){
           router.push('/');
         } else {
           router.push('/');
         }
-      }
+      }else{  
+          setError(response.data.message);
+        }
     } catch (err) {
-      setError('Invalid login credentials');  //toast.error!
+      setError("Invaild credentials");  //toast.error!
     } finally{
       setLoading(false);
     }
@@ -80,10 +81,10 @@ export default function LoginPage() {
           <div className='mt-4'>
             <p className='text-sm text-gray-600'>
               Don't have an account?{' '}
-              <a href = "/register" className='text-blue-500 float-right'>
-              Register here</a>
-              <a href = "/" className='text-blue-500 float-left'>
-              Back</a>
+              <Link href = "/register" className='text-blue-500 float-right'>
+              Register here</Link>
+              <Link href = "/" className='text-blue-500 float-left'>
+              Back</Link>
             </p>
           </div>
 

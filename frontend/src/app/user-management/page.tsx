@@ -5,10 +5,9 @@ import { getUsers, deleteUser, createUser, updateUser } from '../../services/use
 import { useAuth } from '../../context/AuthContext';
 import Layout from '@/components/Layout';
 import UserUpdateWidget from '@/components/UserUpdateWidget';
-import Link  from 'next/link';
 
 interface User {
-  id: string;
+  user_id: string;
   first_name: string;
   last_name: string;
   email: string;
@@ -19,8 +18,8 @@ interface User {
 export default function UserManagement() {
   const {role, isAuthenticated, } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
-  const [newUser, setNewUser] = useState({ id: '',first_name: '',last_name: '', email: '', password:'', confirm_password:''});
-  const [editUser, setEditUser] = useState({id: '', first_name: '',last_name: '', email: '', password: ''});
+  const [newUser, setNewUser] = useState({ user_id: '',first_name: '',last_name: '', email: '', password:'', confirm_password:''});
+  // const [editUser, setEditUser] = useState({id: '', first_name: '',last_name: '', email: '', password: ''});
   const [selectedUser, setSelectedUser] = useState<User|null>(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
@@ -28,10 +27,15 @@ export default function UserManagement() {
   const fetchUsers = async() => {
     try {
       const response = await getUsers();
+      
       if (response.success) {
         setUsers(response.data);
         setLoading(false);
-    }
+      }else {
+        // If the API responds with success: false, set an error message
+        setError(response.message || 'Failed to fetch user data');
+        setLoading(false); // Set loading to false even if there’s an error
+      }
     } catch (error) {
       setError('Get all user data is error');
     }
@@ -61,12 +65,10 @@ export default function UserManagement() {
     }
     setLoading(true);
     try {
-      const response = await createUser(newUser)
+      const response = await createUser(newUser.first_name, newUser.last_name, newUser.email, newUser.password);
       if(response.success) {
-        setUsers((prevUsers) => [...prevUsers, response.data.data]);
-        console.log(response.data);
-        ////////////////////////////////////////////////
-        setNewUser({id: '', first_name:'', last_name:'',email:'', password:'', confirm_password:''});
+        setUsers((prevUsers) => [...prevUsers, response.data]);
+        setNewUser({user_id: '', first_name:'', last_name:'',email:'', password:'', confirm_password:''});
       }
     } catch (error) {
       setError("Create User Error");
@@ -79,7 +81,7 @@ export default function UserManagement() {
     try {
       const response = await deleteUser(userId);
       if(response.success){
-        setUsers(users.filter(user=>user.id !== userId));
+        setUsers(users.filter(user=>user.user_id !== userId));
     }
     } catch (error) {
       setError('Delete User Error');
@@ -93,9 +95,9 @@ export default function UserManagement() {
   const handleUpdateUser = async (updatedUser:User) => {
     setLoading(true);
     try{
-      const response = await updateUser(updatedUser.id, updatedUser);
+      const response = await updateUser(updatedUser.user_id, updatedUser);
       if(response.success){
-        setUsers(users.map(user=>user.id === updatedUser.id ? response.data.data:user));
+        setUsers(users.map(user=>user.user_id === updatedUser.user_id ? response.data.data:user));
         setSelectedUser(null);
       }
     }
@@ -118,7 +120,6 @@ export default function UserManagement() {
   //     setError('Update your informaion Error');
   //   }
   // }
- console.log(users);
   return (
     <Layout>
     <div className="max-w-screen-xl mx-auto py-12">
@@ -165,13 +166,13 @@ export default function UserManagement() {
                   </thead>
                   <tbody className='divide-y divide-gray-200 dark:divide-gray-700'>
                     {!loading&&users.map((u)=>(
-                      <tr key = {u.id}>
+                      <tr key = {u.user_id}>
                           <td className='py-3 ps-4'>
                             <div className='flex items-center h-5'>
-                              <input id = {u.id} type='checkbox' className='border-gray-200 rounded text-blue-600 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-700 dark:checked:bg-blue-500 dark:checked:border-blue-500 dark:focus:ring-offset-gray-800' />
+                              <input id = {u.user_id} type='checkbox' className='border-gray-200 rounded text-blue-600 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-700 dark:checked:bg-blue-500 dark:checked:border-blue-500 dark:focus:ring-offset-gray-800' />
                             </div>
                           </td>
-                          <td className='px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800 dark:text-gray-200'>{u.id}</td>
+                          <td className='px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800 dark:text-gray-200'>{u.user_id}</td>
                           <td className='px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800 dark:text-gray-200'>{u.first_name}</td>
                           <td className='px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800 dark:text-gray-200'>{u.last_name}</td>
                           <td className='px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800 dark:text-gray-200'>{u.email}</td>
@@ -190,7 +191,7 @@ export default function UserManagement() {
                           <td className="px-6 py-4 whitespace-nowrap  text-sm font-medium">
                           <button onClick={()=>handleOpenUpdateWidget(u)} className='text-indigo-600 hover:text-indigo-900'> Edit </button>
                             <span>    |     </span>
-                            <button onClick={()=>handleDeleteUser(u.id)} className='text-indigo-600 hover:text-indigo-900'> Delete </button>
+                            <button onClick={()=>handleDeleteUser(u.user_id)} className='text-indigo-600 hover:text-indigo-900'> Delete </button>
                           </td>
                         
                       </tr>

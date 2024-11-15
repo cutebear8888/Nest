@@ -1,46 +1,97 @@
 // This base URL is http://localhost:xxxx/user
 
 
-import { Controller, Get, Post, Body, Patch, Param, Delete, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Put, Res, Req, HttpStatus } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { Response, Request } from 'express';
 
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  // POST http://localhost:3000/user
-  @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.userService.create(createUserDto);
+  // POST http://localhost:process.env.PORT/user
+  @Post('register')
+  async create(@Body() createUserDto: CreateUserDto, @Res() res:Response) {
+    try {
+      const result = await this.userService.create(createUserDto);
+      if (result.success) {
+        return res.status(HttpStatus.OK).json({success:true, data: result.data});
+      } else {
+        return res.status(HttpStatus.CONFLICT).json({success:false, message:result.message});
+      }
+    } catch (error) {
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({success:false, message:'Internal server error'});
+    }
   }
 
-  // GET http://localhost:3000/user
-  @Get()
-  findAll() {
-    return this.userService.findAll();
+  // GET http://localhost:process.env.PORT/user
+  @Get('all')
+  async findAll(@Res() res:Response) {
+    try {
+      const result = await this.userService.findAll();
+      if(result.success) {
+        return res.status(HttpStatus.OK).json({success:true, data: result.data});
+      }
+      else{
+        return res.status(HttpStatus.UNAUTHORIZED).json({success:false, message:result.message});
+      }
+    } catch (error) {
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({success:false, message:'Internal server error'});    
+    }
   }
 
-  // GET http://localhost:3000/user/:id
+  // GET http://localhost:process.env.PORT/user/:id
   @Get(':id')
-  findOne(@Param('id') id: number) {
-    return this.userService.findOne(+id);
+  async findOne(@Param('id') id: string, @Res() res:Response) {
+    try {
+      const result = await this.userService.findOneById(id);
+      if(result.success) {
+        return res.status(HttpStatus.OK).json({success:true, data: result.data});
+      }
+      else{
+        return res.status(HttpStatus.UNAUTHORIZED).json({success:false, message:result.message});
+      }
+    } catch (error) {
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({success:false, message:'Internal server error'});    
+    }
   }
 
-  // PATCH http://localhost:3000/user/:id
+  // PATCH http://localhost:process.env.PORT/user/:id
   @Patch (':id')
   async update(
-    @Param('id') id: number, 
+    @Param('id') id: string, 
+    @Res() res:Response,
     @Body() updateUserDto: UpdateUserDto, 
-    @Body('currentPassword') currentPassword?: string
+    @Body('currentPassword') currentPassword ?: string,
   ) {
-    return this.userService.update(id, updateUserDto, currentPassword);
+    try {
+      const result = await this.userService.update(id, updateUserDto, currentPassword);
+      if(result.success) {
+        return res.status(HttpStatus.OK).json({success:true, data: result.data});
+      }
+      else{
+        return res.status(HttpStatus.UNAUTHORIZED).json({success:false, message:result.message});
+      }
+    } catch (error) {
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({success:false, message:'Internal server error'});    
+    }
   }
 
-  // DELETE http://localhost:3000/user/:id
+  // DELETE http://localhost:process.env.PORT/user/:id
   @Delete(':id')
-  remove(@Param('id') id: number) {
-    return this.userService.remove(+id);
+  async remove(@Param('id') id: string, @Res() res:Response) {
+    try {
+      const result = await this.userService.remove(id);
+      if(result.success) {
+        return res.status(HttpStatus.OK).json({success:true, data: result.data});
+      }
+      else{
+        return res.status(HttpStatus.UNAUTHORIZED).json({success:false, message:result.message});
+      }
+    } catch (error) {
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({success:false, message:'Internal server error'});    
+    }
   }
 }

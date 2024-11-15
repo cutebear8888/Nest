@@ -17,20 +17,18 @@ import {
 } from 'class-validator';
 
 const passwordRegEx = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!.%*?&])[A-Za-z\d@$!.%*?&]{8,20}$/;
-const passwo = "cutebear777.C!";
-console.log(passwordRegEx.test(passwo));
 
 
 export class CreateUserDto {
   @IsString()
   @MinLength(2, {message: 'Name must have at least 2 characters.'})
   @IsNotEmpty()
-  firstname: string;
+  first_name: string;
 
   @IsString()
   @MinLength(2, {message: 'Name must have at least 2 characters.'})
   @IsNotEmpty()
-  lastname: string;
+  last_name: string;
 
   @IsNotEmpty()
   @IsEmail({}, {message: 'Please provide valid Email.'})

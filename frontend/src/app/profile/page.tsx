@@ -12,7 +12,7 @@ const ProfilePage = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(true);
-  const {logout, role, email, isAuthenticated} = useAuth();
+  const {logout, role, isAuthenticated} = useAuth();
 
   const fetchProfile = async () => {
     try{

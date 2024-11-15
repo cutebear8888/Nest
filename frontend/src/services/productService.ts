@@ -29,7 +29,6 @@ const handleError = (err: any): {
 export const getProducts = async() => {
   try {
     const response = await api.get('products/');
-    console.log("sdfsdfsd"+response.data.data);
     return {success: true, data: response.data.data}
   } catch (error) {
     handleError(error);

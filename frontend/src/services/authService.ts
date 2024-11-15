@@ -28,9 +28,12 @@ const handleError = (err: any): {
 
 export const login = async (email: string, password: string) => {
   try {
-    const response = await api.post('login/', { email:email, password:password });
+    const response = await api.post('/auth/login', { email:email, password:password });
     if(response.data.success){
       return {success: true, data: response.data.data};
+    }
+    else {
+      return {success:false, message: response.data.message}
     }
   } catch (error) {
     return handleError(error);
@@ -39,7 +42,7 @@ export const login = async (email: string, password: string) => {
 
 export const register = async (firstName: string, lastName: string, email: string, password: string) => {
   try {
-    const response = await api.post('/register/', {
+    const response = await api.post('/user/register/', {
       first_name: firstName,
       last_name: lastName,
       email:email,

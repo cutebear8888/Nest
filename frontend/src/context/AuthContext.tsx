@@ -1,6 +1,7 @@
 "use client";  // Mark the component as client-side
-import { getProfile } from '../services/userService';  // Correct import path
+import { getProfile, getDataFromToken } from '../services/userService';  // Correct import path
 import api from '../services/axiosInstance';
+import { fetchCSRF } from '../services/axiosInstance';
 import { useRouter } from 'next/navigation';
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 
@@ -12,7 +13,7 @@ import { createContext, useContext, useState, ReactNode, useEffect } from 'react
 // }
 
 interface AuthContextProps {
-  id: string;
+  user_id: string;
   first_name: string | null;
   last_name: string | null;
   email: string | null;
@@ -20,7 +21,7 @@ interface AuthContextProps {
   is_active:boolean;
   isAuthenticated: boolean;
   setIsAuthenticated:(isAuthenticated:boolean) =>void;
-  setAuth: (first_name: string|null, last_name: string|null, email: string|null, role: string | null, is_active:boolean,id: string) => void;
+  setAuth: (first_name: string|null, last_name: string|null, email: string|null, role: string | null, is_active:boolean,user_id: string) => void;
   logout: () => void;
 }
 
@@ -32,25 +33,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [last_name, setLastName] = useState<string | null> (null);
   const [email, setEmail] = useState<string | null> (null);
   const [role, setRole] = useState<string | null>(null);
-  const [id, setUserId] = useState("");
+  const [user_id, setUserId] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [is_active, setIsActive] = useState(false);
   const [loading, setLoading] = useState(true); 
 
   const router = useRouter();
-  const setAuth = (first_name:string|null, last_name: string|null, email: string|null, role: string | null, is_active:boolean, id: string) => {
+  const setAuth = (first_name:string|null, last_name: string|null, email: string|null, role: string | null, is_active:boolean, user_id: string) => {
     setFirstName(first_name);
     setLastName(last_name);
-    setUserId(id);
+    setUserId(user_id);
     setEmail(email);
     setRole(role);
     setIsActive(is_active);
-    localStorage.setItem('user_id', id);
+    localStorage.setItem('user_id', user_id);
   };
 
   const checkAuth = async () => {
     try{
-      const response = await getProfile();
+      await fetchCSRF();  // Fetch the CSRF token before making any authenticated request
+      const response = await getDataFromToken();
       if(response.success){
         setAuth(response.data.data.first_name, response.data.data.last_name, response.data.data.email, response.data.data.role, response.data.data.is_active, response.data.data.user_id);
         setIsAuthenticated(true);
@@ -70,7 +72,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const logout = async() => {
     try{
-      await api.post('logout/', {}, {withCredentials:true});
+      await api.post(`/auth/logout/${user_id}`, {}, {withCredentials:true});
       setFirstName(null);
       setLastName(null);
       setEmail(null);
@@ -78,13 +80,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setIsAuthenticated(false);
       localStorage.removeItem('user_id');
       router.push('login');
-    } catch(errir){
+    } catch(err){
       console.error('Error Logging out:');
     }
   };
 
   return (
-    <AuthContext.Provider value={{ first_name, last_name, email, role, is_active, id, setIsAuthenticated, isAuthenticated, setAuth, logout }}>
+    <AuthContext.Provider value={{ first_name, last_name, email, role, is_active, user_id, setIsAuthenticated, isAuthenticated, setAuth, logout }}>
       {children}
     </AuthContext.Provider>
   );

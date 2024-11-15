@@ -7,7 +7,7 @@ import UpdateProfileWidget from './UpdateProfile';
 import { updateProfile } from '@/services/userService';
 
 interface User {
-  id: string;
+  user_id: string;
   first_name: string;
   last_name: string;
   email: string;
@@ -16,7 +16,7 @@ interface User {
 }
 
 export default function Header() {
-  const { first_name, last_name, email, role,is_active, id, logout, isAuthenticated } = useAuth();
+  const { first_name, last_name, email, role,is_active, user_id, logout, isAuthenticated } = useAuth();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -119,7 +119,7 @@ export default function Header() {
       {
         profileOpen && first_name && last_name && email && role && (
           <UpdateProfileWidget
-            user = {{first_name:first_name, last_name:last_name, email:email, role:role, is_active:is_active, id: id }}
+            user = {{first_name:first_name, last_name:last_name, email:email, role:role, is_active:is_active, user_id: user_id }}
             onClose={closeProfileOverlay}
             onSave={handleUpdateProfile}
             />
