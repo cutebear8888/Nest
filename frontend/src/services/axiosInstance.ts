@@ -81,9 +81,36 @@ api.interceptors.response.use(
 export const fetchCSRF = async () => {
   try {
     const response = await api.get('/auth/csrf-token'); // Adjust endpoint as needed
-    console.log('CSRF Token fetched:', response.data.csrfToken);
+    if(response.data.success){
+      console.log('CSRF Token fetched:', response.data.csrfToken);
+    } else {
+      console.log('CSRF TOKEN UNFETCHED');
+    }
   } catch (error) {
-    console.error('Error fetching CSRF token:', error);
+    if (axios.isAxiosError(error)) {
+      if (error.response) {
+        // The server responded with a status code that falls out of the range of 2xx
+        console.log('Error fetching CSRF token:', error.response.data);  // Log error response from server
+        console.log('Error status:', error.response.status);  // Log the status code
+        
+        // Handle different types of HTTP errors (e.g., 500, 401, etc.)
+        if (error.response.status === 500) {
+          console.log('Server error while fetching CSRF token.');
+        } else if (error.response.status === 401) {
+          console.log('Unauthorized: You need to be logged in to fetch the CSRF token.');
+        } else {
+          console.log('An unexpected error occurred while fetching the CSRF token.');
+        }
+      } else if (error.request) {
+        // The request was made but no response was received
+        console.log('No response received from the server while fetching CSRF token.');
+      } else {
+        // Something happened in setting up the request
+        console.log('Error setting up the request to fetch CSRF token:', error.message);
+      }
+    } else {
+      console.log('Unexpected error occurred:', error);
+    }
   }
 };
 

@@ -1,9 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Res, HttpStatus, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Res, HttpStatus, Req, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { UserService } from 'src/user/user.service';
+import { AuthGuard } from './auth.guard';
 import { LoginDto } from './dto/login.dto';
 import { Response, Request } from 'express';
-import * as jwt from 'jsonwebtoken';
 
 
 @Controller('auth')
@@ -46,33 +45,24 @@ export class AuthController {
     }
   }
 
+  
   @Get('datafromtoken')
+  @UseGuards(AuthGuard)
   async getDataFromToken(@Req() req:Request, @Res() res:Response){
     try {
-      const accessToken = req.cookies['access_token'];
-      if(!accessToken){
-        return res.status(HttpStatus.UNAUTHORIZED).json({success:false, message:'You are already expired'});
-      }
-      let decodedToken;
-      try{
-        decodedToken = jwt.verify(accessToken,process.env.JWT_SECRET);
-      } catch (error) {
-          return res.status(HttpStatus.UNAUTHORIZED)
-          .json({success: false, message: 'Invalid or expired token'});      
-      }
+      const user = req.user;
       
-      const user_id = decodedToken['user_id'];
-      const result = await this.authService.userData(user_id);
-      if(result.success){
-        return res.status(HttpStatus.OK).json({success:true, data:result.data});
+      if(!user){
+        return res.status(HttpStatus.UNAUTHORIZED).json({success:false, message:"Invalid User"});
       }
-      return res.status(HttpStatus.UNAUTHORIZED).json({success:false, message:result.message});
+      return res.status(HttpStatus.OK).json({success:true, data:user});
     } catch(error){
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({success:false, message:'Internal server error'});
     }
   }
 
   @Post('refreshToken')
+  @UseGuards(AuthGuard)
   async refresh(@Req() req:Request, @Res() res:Response){
     try {
       const refreshToken = req.cookies['refresh_token'];
@@ -96,7 +86,9 @@ export class AuthController {
     }
   }
 
+  
   @Post('logout/:id')
+  @UseGuards(AuthGuard)
   async logout(@Param('id') id:string, @Res() res:Response){
     try {
       const result = await this.authService.logout(id);

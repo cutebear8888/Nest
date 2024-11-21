@@ -28,7 +28,9 @@ const handleError = (err: any): {
 
 export const getUsers = async () => {
   try {
+    console.log("middleware hello");
     const response = await api.get('/user/all/');
+    console.log("middleware" + response.data.success);
     if(response.data.success){
       return{
         success: true,
@@ -102,7 +104,7 @@ export const getDataFromToken = async () => {
   try {
     console.log("ajdsfpoaiewfoisapdoifjhpoaisdf");
     const response = await api.get('/auth/datafromtoken/');
-    console.log("dta");
+    console.log("dta" + response.data.email);
     return {
       success: true,
       data: response.data
