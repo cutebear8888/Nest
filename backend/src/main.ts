@@ -5,6 +5,11 @@ import * as csrf from 'csurf'
 import * as cookieParser from 'cookie-parser'
 import * as cors from "cors"
 import * as dotenv from 'dotenv'
+import { AuthMiddleware } from './common/middlewares/auth.middleware';
+import { JwtService } from '@nestjs/jwt';
+
+// import { AuthMiddleware } from './common/middlewares/auth.middleware';
+// import { JwtService } from '@nestjs/jwt';
 
 dotenv.config();
 
@@ -43,6 +48,12 @@ async function bootstrap() {
       },
     }),
   );
+
+  // const authmiddleware = new AuthMiddleware(JwtService);
+  // // User MiddleWare
+  // // Register middleware globally
+  // app.use(authMiddleware.use.bind(authMiddleware)); // Use middleware function
+
   await app.listen(process.env.PORT);
 }
 bootstrap();

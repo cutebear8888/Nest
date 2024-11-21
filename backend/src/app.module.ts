@@ -7,6 +7,9 @@ import { AuthModule } from './auth/auth.module';
 import { ProductModule } from './product/product.module';
 import { User } from './user/entities/user.entity';
 
+// import { NestModule, MiddlewareConsumer } from '@nestjs/common';
+// import { AuthMiddleware } from './common/middlewares/auth.middleware';
+
 @Module({
   imports: [
     TypeOrmModule.forRoot({
@@ -28,3 +31,10 @@ import { User } from './user/entities/user.entity';
   providers: [AppService],
 })
 export class AppModule {}
+// export class AppModule implements NestModule {
+//   configure(consumer: MiddlewareConsumer) {
+//     consumer
+//       .apply(AuthMiddleware)  // Apply middleware here
+//       .forRoutes('*');  // Apply to all routes or specify specific routes
+//   }
+// }
